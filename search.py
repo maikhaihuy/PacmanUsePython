@@ -87,107 +87,112 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    from game import Directions
-    s = Directions.SOUTH
-    w = Directions.WEST
-    n = Directions.NORTH
-    e = Directions.EAST
-
-    results = []
     from util import Stack
 
     # Get start state
-    stateStart = problem.getStartState()
+    startState = problem.getStartState()
+    startNode = (startState, "", 0)
     # Visited position
     visted = []
     # Stack contain on state of Pacman
     stackNode = Stack()
-    stackNode.push((stateStart, "", 0))
-    # Stack tracking
-    stackTracking = Stack()
+    stackNode.push((startNode, []))
 
-    # Step
-    step = 1
     while(not stackNode.isEmpty()):
         # Get current node executing
         currentNode = stackNode.pop()
+        print "Current node ", currentNode
+        valueNode = currentNode[0]
+        path = currentNode[1]
 
         # Check node isnt visited
-        if currentNode[0] not in visted:
+        if valueNode[0] not in visted:
             # Add node into list of visited
-            visted.append(currentNode[0])
+            visted.append(valueNode[0])
             # Check current node is Goal?
-            if problem.isGoalState(currentNode[0]) == True:
-                stackTracking.push(currentNode)
-                while(not stackTracking.isEmpty()):
-                    action = stackTracking.pop()[1]
-                    if action != "":
-                        results.insert(0,action)
-                print results
-                return results
+            if problem.isGoalState(valueNode[0]) == True:
+                return path
             # Not goal
             else:
-                # Variable for deadlock position 
-                isStuck = True
-                # While is stucking, pop nodes, is pushed
-                while True:
-                    print "Step ", step
-                    step += 1
-                    print "\tCurrent node", currentNode
-                    seccessors = problem.getSuccessors(currentNode[0])
-                    for seccessor in seccessors:
-                        if seccessor[0] not in visted:
-                            isStuck = False
-                            print "\tSeccessors ", seccessor
-                            stackNode.push(seccessor)
-
-                    if isStuck == True:
-                        temp = stackTracking.pop()
-                        print "Remove step ", step
-                        step -= 1
-                        print "\tNode ", temp
-                        currentNode = temp
-                    else:
-                        stackTracking.push(currentNode)
-                        break
-                    
-    return  results
+                seccessors = problem.getSuccessors(valueNode[0])
+                for seccessor in seccessors:
+                    if seccessor[0] not in visted:
+                        tempPath = list(path)
+                        tempPath.append(seccessor[1])
+                        stackNode.push((seccessor,tempPath))
+    return  path
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     from util import Queue
     startState = problem.getStartState()
-    startNode = (startState, "", "")
+    startNode = (startState, "", 0)
     # Visited
     visited = set([startState])
     # Declare variable for queue node
     queueNode = Queue()
     # Push start state into queue
-    queueNode.push((startState,[]))
+    queueNode.push((startNode,[]))
 
     while(not queueNode.isEmpty()):
         currentNode = queueNode.pop()
+        #print "Current node ", currentNode
         valueNode = currentNode[0]
+
         path = currentNode[1]
 
-        if problem.isGoalState(valueNode[1]):
+        if problem.isGoalState(valueNode[0]):
+            print "Results ", path
             return path
         else:
-            seccessors = problem.getSuccessors(currentNode[0])
-            tempPath = list(path)
+            seccessors = problem.getSuccessors(valueNode[0])
+            #print "\tSeccessors ", seccessors
+            
             for seccessor in seccessors:
                 if seccessor[0] not in visited:
+                    tempPath = list(path)
                     visited.add(seccessor[0])
-                    queue.push(seccessor)
                     tempPath.append(seccessor[1])
-                    queueNode.push(seccessor,tempPath)
+                    queueNode.push((seccessor,tempPath))
+                    #print "\tTemp path ", tempPath
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    startState = problem.getStartState()
+    startNode = (startState, "", 0)
+    # Visited
+    visited = set([startState])
+    # Declare priority queue
+    priorityQueueNode = PriorityQueue()
+    # Start state
+    priorityQueueNode.push((startNode,[]),0)
+
+    # Cost
+    cost = 0
+    while not priorityQueueNode.isEmpty():
+        currentNode = priorityQueueNode.pop()
+        #print currentNode
+        valueNode = currentNode[0]
+        path = currentNode[1]
+        cost = valueNode[2]
+        #print "Current node ", currentNode
+        if problem.isGoalState(valueNode[0]):
+            return path
+        else:
+            seccessors = problem.getSuccessors(valueNode[0])
+            #print "\tSeccessors ", seccessors
+
+            for seccessor in seccessors:
+                if seccessor[0] not in visited:
+                    tempPath = list(path)
+                    visited.add(seccessor[0])
+                    tempPath.append(seccessor[1])
+                    priorityQueueNode.push((seccessor, tempPath), cost + seccessor[2])
+
 
 def nullHeuristic(state, problem=None):
     """
