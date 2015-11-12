@@ -88,110 +88,90 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     from util import Stack
-
     # Get start state
     startState = problem.getStartState()
-    startNode = (startState, "", 0)
     # Visited position
     visted = []
     # Stack contain on state of Pacman
     stackNode = Stack()
-    stackNode.push((startNode, []))
+    stackNode.push((startState, []))
 
     while(not stackNode.isEmpty()):
         # Get current node executing
-        currentNode = stackNode.pop()
-        print "Current node ", currentNode
-        valueNode = currentNode[0]
-        path = currentNode[1]
-
-        # Check node isnt visited
-        if valueNode[0] not in visted:
-            # Add node into list of visited
-            visted.append(valueNode[0])
+        currentState, actions = stackNode.pop()
+        
+        if currentState not in visited:
             # Check current node is Goal?
-            if problem.isGoalState(valueNode[0]) == True:
-                return path
-            # Not goal
-            else:
-                seccessors = problem.getSuccessors(valueNode[0])
-                for seccessor in seccessors:
-                    if seccessor[0] not in visted:
-                        tempPath = list(path)
-                        tempPath.append(seccessor[1])
-                        stackNode.push((seccessor,tempPath))
-    return  path
+            if problem.isGoalState(currentState):
+                return actions
+
+            #visted.append(currentState)
+
+            seccessors = problem.getSuccessors(currentState)
+            for state, action, cost in seccessors:
+                if state not in visted:
+                    stackNode.push((state,actions + [action]))
+                    visited.append(state)
+    return  []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     from util import Queue
     startState = problem.getStartState()
-    startNode = (startState, "", 0)
     # Visited
-    visited = set([startState])
+    visited = []
     # Declare variable for queue node
     queueNode = Queue()
     # Push start state into queue
-    queueNode.push((startNode,[]))
+    queueNode.push((startState,[]))
 
     while(not queueNode.isEmpty()):
-        currentNode = queueNode.pop()
-        #print "Current node ", currentNode
-        valueNode = currentNode[0]
+        currentState, actions = queueNode.pop()
 
-        path = currentNode[1]
+        if problem.isGoalState(currentState):
+            return actions
 
-        if problem.isGoalState(valueNode[0]):
-            print "Results ", path
-            return path
-        else:
-            seccessors = problem.getSuccessors(valueNode[0])
-            #print "\tSeccessors ", seccessors
+        if currentState not in visited:
+            #visited.append(currentState)
+
+            seccessors = problem.getSuccessors(currentState)
             
-            for seccessor in seccessors:
-                if seccessor[0] not in visited:
-                    tempPath = list(path)
-                    visited.add(seccessor[0])
-                    tempPath.append(seccessor[1])
-                    queueNode.push((seccessor,tempPath))
-                    #print "\tTemp path ", tempPath
+            for state,action,cost in seccessors:
+                if state not in visited:
+                    visited.append(state)
+                    queueNode.push((state,actions + [action]))
+    return []
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     from util import PriorityQueue
-    startState = problem.getStartState()
-    startNode = (startState, "", 0)
     # Visited
-    visited = set([startState])
+    visited = []
     # Declare priority queue
     priorityQueueNode = PriorityQueue()
     # Start state
-    priorityQueueNode.push((startNode,[]),0)
+    priorityQueueNode.push((problem.getStartState(),[]),0)
 
-    # Cost
-    cost = 0
     while not priorityQueueNode.isEmpty():
-        currentNode = priorityQueueNode.pop()
-        #print currentNode
-        valueNode = currentNode[0]
-        path = currentNode[1]
-        cost = valueNode[2]
-        #print "Current node ", currentNode
-        if problem.isGoalState(valueNode[0]):
-            return path
-        else:
-            seccessors = problem.getSuccessors(valueNode[0])
-            #print "\tSeccessors ", seccessors
+        currentState, actions = priorityQueueNode.pop()
 
-            for seccessor in seccessors:
-                if seccessor[0] not in visited:
-                    tempPath = list(path)
-                    visited.add(seccessor[0])
-                    tempPath.append(seccessor[1])
-                    priorityQueueNode.push((seccessor, tempPath), cost + seccessor[2])
+        if currentState not in visited:
+            #print "Current node ", currentNode
+            if problem.isGoalState(currentState):
+                return actions
+            
+            visited.append(currentState)
+
+            seccessors = problem.getSuccessors(currentState)
+
+            for state, action, cost in seccessors:
+                if state not in visited:
+                    priorityQueueNode.push((state, actions + [action]), problem.getCostOfActions(tempActions))
+
+    return []
 
 
 def nullHeuristic(state, problem=None):
