@@ -104,7 +104,7 @@ def depthFirstSearch(problem):
         for state, action, cost in seccessors:
             if state not in visted:
                 if problem.isGoalState(currentState):
-                    return actions + [action]
+                    return actions
                 visited.append(state)
                 tempActions = actions + [action]
                 stackNode.push((state,tempActions))
@@ -131,9 +131,11 @@ def breadthFirstSearch(problem):
         for state,action,cost in seccessors:
             if state not in visited:
                 if problem.isGoalState(currentState):
-                    return actions + [action]
-                queueNode.push((state,actions + [action]))
+                    print actions
+                    return actions
                 visited.append(state)
+                tempActions = actions + [action]
+                queueNode.push((state,tempActions))
     return []
 
 
@@ -151,21 +153,19 @@ def uniformCostSearch(problem):
     while not priorityQueueNode.isEmpty():
         currentState, actions = priorityQueueNode.pop()
 
-        if currentState not in visited:
-            #print "Current node ", currentNode
-            if problem.isGoalState(currentState):
-                return actions
-            
-            visited.append(currentState)
+        #print "Current node ", currentNode
+        if problem.isGoalState(currentState):
+            return actions
+        
+        
 
-            seccessors = problem.getSuccessors(currentState)
+        seccessors = problem.getSuccessors(currentState)
 
-            for state, action, cost in seccessors:
-                if state not in visited:
-                    tempActions = actions + [action]
-                    priorityQueueNode.push((state, tempActions), problem.getCostOfActions(tempActions))
-                    #visited.append(state)
-
+        for state, action, cost in seccessors:
+            if state not in visited:
+                tempActions = actions + [action]
+                priorityQueueNode.push((state, tempActions), problem.getCostOfActions(tempActions))
+                visited.append(state)
     return []
 
 
